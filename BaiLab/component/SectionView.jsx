@@ -29,6 +29,14 @@ const eventInfo = [
         image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEra-Hetj_3VJ8i_L6l_Hbhq-IEs3qhNCwEg&s",
         button: true,
       },
+      {
+        label: "IoT và Tương Lai",
+        location: "Hà Nội",
+        time: "14:00 PM - 16:00 PM",
+        transport: "Grab / Bike",
+        image: "",
+        button: true,
+      },
     ],
   },
   {
@@ -67,6 +75,8 @@ const CustomSection = ({ section }) => {
     </View>
   );
 };
+
+
 
 // 🔵 COMPONENT HIỂN THỊ CHI TIẾT
 const CustomCard = ({ event }) => {

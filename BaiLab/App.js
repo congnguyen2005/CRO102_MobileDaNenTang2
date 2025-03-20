@@ -1,107 +1,128 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import * as Animatable from "react-native-animatable";
+import React, { useState, useCallback, useEffect } from "react";
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from "react-native";
+import Header from "./bai2/Header";
+import Footer from "./bai2/Footer";
 
-// Import Custom Header
-import CustomHeader from "./component/header";
-import SectionViewScreen from "./component/SectionView";
-import TextInputScreen from "./component/CustomTextInput";
+const colors = ["white", "gray", "yellow", "red", "blue", "orange"];
 
+export default function Main() {
+  const [user, setUser] = useState({
+    name: "Chưa có tên",
+    avatar: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+  });
 
-const Stack = createStackNavigator();
+  const [inputName, setInputName] = useState("");
+  const [inputAvatar, setInputAvatar] = useState("");
 
-const HomeScreen = ({ navigation }) => {
+  const [footerColor, setFooterColor] = useState(colors[0]);
+  const [lastTimeUpdate, setLastTimeUpdate] = useState("");
+
+  // Cập nhật thời gian thực mỗi giây
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentDate = new Date();
+      const dateString = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
+      const timeString = `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
+      setLastTimeUpdate(`${timeString} - ${dateString}`);
+    }, 1000); // Cập nhật mỗi giây
+
+    return () => clearInterval(interval); // Xóa interval khi component bị unmount
+  }, []);
+
+  // Cập nhật thông tin người dùng
+  const onUpdateInfo = useCallback(() => {
+    if (!inputName.trim() || !inputAvatar.trim()) {
+      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+    setUser({ name: inputName, avatar: inputAvatar });
+  }, [inputName, inputAvatar]);
+
+  // Đổi màu footer
+  const onClickChangeBgFooter = useCallback(() => {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    setFooterColor(colors[randomIndex]);
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Animatable.Text animation="fadeInDown" style={styles.title}>
-        Chọn bài học:
-      </Animatable.Text>
+      {/* Header */}
+      <Header user={user} />
 
-      {[
-        { title: "Bài 1: Header", screen: "CustomHeader", delay: 100 },
-        { title: "Bài 2: Section View", screen: "SectionView", delay: 200 },
-        { title: "Bài 3: Text Input", screen: "TextInput", delay: 300 },
-      ].map(({ title, screen, delay }, index) => (
-        <Animatable.View animation="fadeInUp" delay={delay} key={index}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate(screen)}
-          >
-            <Text style={styles.buttonText}>{title}</Text>
-          </TouchableOpacity>
-        </Animatable.View>
-      ))}
+      {/* Input nhập thông tin */}
+      <TextInput
+        style={styles.input}
+        placeholder="Nhập tên mới"
+        placeholderTextColor="#888"
+        value={inputName}
+        onChangeText={setInputName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Dán địa chỉ avatar mới"
+        placeholderTextColor="#888"
+        value={inputAvatar}
+        onChangeText={setInputAvatar}
+      />
+
+      {/* Nút bấm */}
+      <TouchableOpacity style={styles.button} onPress={onUpdateInfo}>
+        <Text style={styles.buttonText}>CẬP NHẬT THÔNG TIN</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={onClickChangeBgFooter}>
+        <Text style={styles.buttonText}>ĐỔI MÀU FOOTER</Text>
+      </TouchableOpacity>
+
+      {/* Footer */}
+      <Footer timeUpdate={lastTimeUpdate} backgroundColor={footerColor} />
     </View>
-  );
-};
-
-const CustomHeaderScreen = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      {/* Header 1 */}
-      <CustomHeader title="Header" showAvatar={true} />
-      {/* Header 2 */}
-      <CustomHeader title="Trang chủ" showAvatar={false} />
-      {/* Header 3 */}
-      <CustomHeader title="Đặng Công Nguyên" showAvatar={true} />
-      <CustomHeader title="" showAvatar={false} />
-    </View>
-  );
-};
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          headerStyle: { backgroundColor: "#3498db" },
-          headerTintColor: "#fff",
-          headerTitleAlign: "center",
-        }}
-      >
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Menu chính" }} />
-        <Stack.Screen name="CustomHeader" component={CustomHeaderScreen} options={{ title: "Bài 1: Header" }} />
-        <Stack.Screen name="SectionView" component={SectionViewScreen} options={{ title: "Bài 2: Section View" }} />
-        <Stack.Screen name="TextInput" component={TextInputScreen} options={{ title: "Bài 3: Text Input" }} />
-      </Stack.Navigator>
-    </NavigationContainer>
   );
 }
 
+// Style nâng cấp
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#ecf0f1",
     padding: 20,
+    backgroundColor: "#f4f4f4",
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#2c3e50",
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: "#2980b9",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+  input: {
+    width: "85%",
+    height: 45,
+    backgroundColor: "white",
     borderRadius: 10,
-    marginVertical: 10,
-    width: 250,
-    alignItems: "center",
-    elevation: 5,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    fontSize: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.1,
     shadowRadius: 4,
+    elevation: 2,
+  },
+  button: {
+    width: "85%",
+    height: 45,
+    backgroundColor: "#007bff",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    marginVertical: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  buttonSecondary: {
+    backgroundColor: "#28a745",
   },
   buttonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
+ 

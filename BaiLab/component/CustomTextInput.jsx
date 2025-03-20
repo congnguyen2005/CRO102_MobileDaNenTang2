@@ -87,7 +87,6 @@ const CustomTextInput = () => {
         <Text style={styles.saveButtonText}>Lưu thông tin</Text>
       </TouchableOpacity>
 
-      {/* Hiển thị thông tin đã lưu */}
       {savedData && (
         <View style={styles.savedDataContainer}>
           <Text style={styles.savedDataTitle}>Thông tin đã lưu:</Text>
