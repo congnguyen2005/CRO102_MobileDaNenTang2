@@ -1,0 +1,147 @@
+import { Button, View, FlatList, StyleSheet, Text } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+
+export default function App() {
+  const width = useSharedValue(100);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+
+  const pressed = useSharedValue(false);
+
+  const pan = Gesture.Pan()
+    .onBegin(() => {
+      pressed.value = true;
+    })
+    .onChange((event) => {
+      translateX.value = event.translationX;
+    })
+    .onFinalize(() => {
+      translateX.value = withSpring(0);
+      pressed.value = false;
+    });
+
+  // const animatedStyles = useAnimatedStyle(() => ({
+  //   backgroundColor: pressed.value ? "#FFE04B" : "#B58DF1",
+  //   transform: [
+  //     { translateX: translateX.value },
+  //     { scale: withTiming(pressed.value ? 1.2 : 1) },
+  //   ],
+  // }));
+
+  const handlePress = () => {
+    width.value = withSpring(width.value + 50);
+    // translateX.value = withSpring(translateX.value + 50);
+    // translateY.value = withSpring(translateY.value + 50);
+  };
+
+  return (
+    // <GestureHandlerRootView style={{ flex: 1 }}>
+    //   <View style={{ flex: 1, alignItems: "center" }}>
+    //     <GestureDetector gesture={pan}>
+    //       <Animated.View
+    //         style={[
+    //           {
+    //             cursor: "grab",
+    //             width,
+    //             height: 100,
+    //             backgroundColor: "violet",
+    //             // transform: [{ translateX }],
+    //             // transform: [{ translateY }],
+    //           },
+    //           animatedStyles,
+    //         ]}
+    //       />
+    //     </GestureDetector>
+
+    //     <Button onPress={handlePress} title="Click me" />
+    //   </View>
+    // </GestureHandlerRootView>
+    <FlatListBasics />
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 22,
+  },
+  item: {
+    backgroundColor: "green",
+    padding: 10,
+    fontSize: 18,
+    height: 50,
+    margin: 5,
+  },
+});
+
+const FlatListBasics = () => {
+  const itemChange = useSharedValue([]);
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={[
+          { key: "Devin" },
+          { key: "Dan" },
+          { key: "Dominic" },
+          { key: "Jackson" },
+          { key: "James" },
+          { key: "Joel" },
+          { key: "John" },
+          { key: "Jillian" },
+          { key: "Jimmy" },
+          { key: "Julie" },
+          { key: "Devin1" },
+          { key: "Dan1" },
+          { key: "Dominic1" },
+          { key: "Jackson1" },
+          { key: "James1" },
+          { key: "Joel1" },
+          { key: "John1" },
+          { key: "Jillian1" },
+          { key: "Jimmy1" },
+          { key: "Julie1" },
+        ]}
+        onViewableItemsChanged={({ viewableItems: vItem }) => {
+          itemChange.value = vItem;
+        }}
+        renderItem={({ item }) => {
+          return <ListItem item={item} itemChange={itemChange} />;
+        }}
+      />
+    </View>
+  );
+};
+
+function ListItem({ item, itemChange }) {
+  const rStyle = useAnimatedStyle(() => {
+    let isViewable = itemChange.value
+      .filter((itemvv) => itemvv.isViewable)
+      .find((itemv) => itemv.item.key == item.key);
+    console.log(isViewable);
+    return {
+      opacity: withTiming(isViewable ? 1 : 0),
+      transform: [
+        {
+          scale: withTiming(isViewable ? 1 : 0.6),
+        },
+      ],
+    };
+  });
+  return (
+    <Animated.View style={[styles.item, rStyle]}>
+      <Text>{item.key}</Text>
+    </Animated.View>
+  );
+}
