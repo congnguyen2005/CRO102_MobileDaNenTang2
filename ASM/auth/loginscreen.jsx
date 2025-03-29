@@ -13,7 +13,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       Alert.alert("Đăng nhập thành công!");
-      navigation.replace("Home");
+      navigation.replace("Main");
     } catch (error) {
       Alert.alert("Lỗi đăng nhập!", error.message);
     }
