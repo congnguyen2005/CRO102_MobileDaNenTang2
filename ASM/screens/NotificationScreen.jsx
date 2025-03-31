@@ -16,7 +16,7 @@ const NotificationScreen = () => {
       productName: "Spider Plant",
       category: "Lá bóng",
       quantity: "2 sản phẩm",
-      image: "https://via.placeholder.com/50"
+      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQq3RaIjtGWxlcPXSt-wVeCfTnxGCvHmem0A&s"
     }
   ]);
 

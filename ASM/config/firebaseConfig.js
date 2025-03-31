@@ -8,8 +8,7 @@ const firebaseConfig = {
     storageBucket: "asm-cro102.appspot.com",
     messagingSenderId: "123456789012",
     appId: "1:123456789012:web:abcdef123456"
-  };  
-
+  }; 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
