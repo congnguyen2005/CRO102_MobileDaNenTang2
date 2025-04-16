@@ -1,24 +1,38 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  StyleSheet
-} from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, FlatList, Image, StyleSheet } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import firestore from '@react-native-firebase/firestore'; // Import Firestore for saving notifications
 
 const NotificationScreen = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: "1",
-      date: "Thứ tư, 03/09/2021",
-      message: "Đặt hàng thành công",
-      productName: "Spider Plant",
-      category: "Lá bóng",
-      quantity: "2 sản phẩm",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQq3RaIjtGWxlcPXSt-wVeCfTnxGCvHmem0A&s"
-    }
-  ]);
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const loadNotifications = async () => {
+      try {
+        // Lấy các thông báo từ AsyncStorage
+        const savedNotifications = await AsyncStorage.getItem('notifications');
+        if (savedNotifications) {
+          setNotifications(JSON.parse(savedNotifications));
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy thông báo từ AsyncStorage:', error);
+      }
+    };
+
+    loadNotifications(); // Lấy thông báo khi màn hình được render
+
+    // Để đồng bộ dữ liệu với Firestore, bạn có thể lắng nghe sự thay đổi của Firestore nếu cần
+    const unsubscribe = firestore()
+      .collection('notifications')
+      .orderBy('timestamp', 'desc') // Sắp xếp theo thời gian
+      .onSnapshot(snapshot => {
+        const notificationsList = snapshot.docs.map(doc => doc.data());
+        setNotifications(notificationsList);
+      });
+
+    // Cleanup khi component bị hủy
+    return () => unsubscribe();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -35,9 +49,7 @@ const NotificationScreen = () => {
                 <Image source={{ uri: item.image }} style={styles.image} />
                 <View>
                   <Text style={styles.successText}>{item.message}</Text>
-                  <Text>
-                    {item.productName} | {item.category}
-                  </Text>
+                  <Text>{item.productName} | {item.category}</Text>
                   <Text>{item.quantity}</Text>
                 </View>
               </View>

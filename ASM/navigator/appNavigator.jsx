@@ -18,6 +18,10 @@ import PrivacyPolicyScreen from "../profile/PrivacyPolicyScreen";
 import GeminiAPI from "../profile/GeminiAPI";
 import LoginScreen from "../auth/loginscreen";
 import RegisterScreen from "../auth/RegisterScreen";
+import ProductDetailScreen from "../screens/ProductDetailScreen"; // Thêm dòng này
+import CheckoutScreen from '../screens/CheckoutScreen';
+import CardInputScreen from '../screens/CardInputScreen';
+import OrderSuccess from '../screens/OrderSuccess'; // Tạo file này
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -69,6 +73,26 @@ const AppNavigator = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Main" component={BottomTabNavigator} />
+        <Stack.Screen
+          name="ProductDetail"
+          component={ProductDetailScreen}
+          options={{ headerShown: true, title: 'Chi tiết sản phẩm' }}
+        />
+        <Stack.Screen
+          name="Checkout"
+          component={CheckoutScreen}
+          options={{ headerShown: true, title: 'Thanh toán' }}
+        />
+        <Stack.Screen
+          name="CardInputScreen"
+          component={CardInputScreen}
+          options={{ headerShown: true, title: 'Nhập thông tin thẻ' }}
+        />
+        <Stack.Screen
+          name="OrderSuccess"
+          component={OrderSuccess}
+          options={{ headerShown: true, title: 'Thành công' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -10,7 +10,7 @@ const EditProfileScreen = () => {
 
   useEffect(() => {
     const loadProfile = async () => {
-      const storedName = await AsyncStorage.getItem("profile_name");
+      const storedName = await AsyncStorage.getItem("profil _name");
       const storedEmail = await AsyncStorage.getItem("profile_email");
       if (storedName) setName(storedName);
       if (storedEmail) setEmail(storedEmail);

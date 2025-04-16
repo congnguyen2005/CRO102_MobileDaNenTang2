@@ -1,57 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, Alert, StyleSheet } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Alert,
+  StyleSheet,
+} from "react-native";
+import { signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
 import { FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Google from "expo-auth-session/providers/google";
-import * as Facebook from "expo-auth-session/providers/facebook"; 
-import { GoogleAuthProvider, FacebookAuthProvider, signInWithCredential } from "firebase/auth"; 
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [googleRequest, googleResponse, googlePromptAsync] = Google.useAuthRequest({
-    expoClientId: "YOUR_EXPO_CLIENT_ID",
-    androidClientId: "YOUR_ANDROID_CLIENT_ID",
-    iosClientId: "YOUR_IOS_CLIENT_ID",
-    webClientId: "761658028644-7p4olqah34pvchnsr492hb8bqvqn69gd.apps.googleusercontent.com",
-  });
-
-  const [facebookRequest, facebookResponse, facebookPromptAsync] = Facebook.useAuthRequest({
-    clientId: "YOUR_FACEBOOK_APP_ID",
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: "761658028644-7p4olqah34pvchnsr492hb8bqvqn69gd.apps.googleusercontent.com", // Thay bằng ID thật
+    androidClientId: "761658028644-824aqhu01a5jfgnh68927njai5ekjpcr.apps.googleusercontent.com",
+    iosClientId: "761658028644-3v9ntshf2gacvnvb3hv1sdiecmb48tc0.apps.googleusercontent.com", 
+    webClientId: "761658028644-b2qct9fdj0ln6p006rabl2vrnnbok8nh.apps.googleusercontent.com",
   });
 
   useEffect(() => {
-    // Google Authentication
-    if (googleResponse?.type === "success") {
-      const { id_token } = googleResponse.authentication;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          Alert.alert("Đăng nhập thành công!", "Bạn đã đăng nhập bằng Google.");
-          navigation.replace("Main");
-        })
-        .catch((error) => {
-          Alert.alert("Lỗi Google Sign-In", error.message);
-        });
-    }
+    const handleGoogleSignIn = async () => {
+      if (response?.type === "success") {
+        const { id_token } = response.authentication;
+        const credential = GoogleAuthProvider.credential(id_token);
 
-    // Facebook Authentication
-    if (facebookResponse?.type === "success") {
-      const { token } = facebookResponse.authentication;
-      const credential = FacebookAuthProvider.credential(token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          Alert.alert("Đăng nhập thành công!", "Bạn đã đăng nhập bằng Facebook.");
-          navigation.replace("Main");
-        })
-        .catch((error) => {
-          Alert.alert("Lỗi Facebook Sign-In", error.message);
-        });
-    }
-  }, [googleResponse, facebookResponse]);
+        try {
+          await signInWithCredential(auth, credential);
+          Alert.alert("Đăng nhập Google thành công!");
+          navigation.replace("Main"); // Điều hướng sang màn chính
+        } catch (error) {
+          Alert.alert("Lỗi đăng nhập Google", error.message);
+        }
+      }
+    };
+
+    handleGoogleSignIn();
+  }, [response]);
 
   const handleLogin = async () => {
     try {
@@ -70,43 +64,44 @@ const LoginScreen = ({ navigation }) => {
         <Text style={styles.title}>Chào mừng bạn</Text>
         <Text style={styles.subtitle}>Đăng nhập tài khoản</Text>
 
-        {/* Email Input */}
         <View style={styles.inputContainer}>
           <MaterialIcons name="email" size={24} color="gray" style={styles.inputIcon} />
-          <TextInput placeholder="Email" style={styles.input} onChangeText={setEmail} value={email} keyboardType="email-address" />
+          <TextInput
+            placeholder="Email"
+            style={styles.input}
+            onChangeText={setEmail}
+            value={email}
+            keyboardType="email-address"
+          />
         </View>
 
-        {/* Password Input */}
         <View style={styles.inputContainer}>
           <MaterialIcons name="lock" size={24} color="gray" style={styles.inputIcon} />
-          <TextInput placeholder="Mật khẩu" style={styles.input} onChangeText={setPassword} value={password} secureTextEntry />
+          <TextInput
+            placeholder="Mật khẩu"
+            style={styles.input}
+            onChangeText={setPassword}
+            value={password}
+            secureTextEntry
+          />
         </View>
 
-        {/* Forgot Password */}
         <TouchableOpacity>
           <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
         </TouchableOpacity>
 
-        {/* Login Button */}
         <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.8}>
           <Text style={styles.buttonText}>Đăng nhập</Text>
         </TouchableOpacity>
 
-        {/* Social Login */}
         <Text style={styles.orText}>Hoặc đăng nhập bằng</Text>
         <View style={styles.socialContainer}>
-          {/* Google Login Button */}
-          <TouchableOpacity style={styles.socialButton} onPress={() => googlePromptAsync()} activeOpacity={0.7}>
+          {/* Google Login */}
+          <TouchableOpacity style={styles.socialButton} onPress={() => promptAsync()} activeOpacity={0.7}>
             <FontAwesome name="google" size={24} color="#DB4437" />
-          </TouchableOpacity>
-          
-          {/* Facebook Login Button */}
-          <TouchableOpacity style={styles.socialButton} onPress={() => facebookPromptAsync()} activeOpacity={0.7}>
-            <FontAwesome name="facebook" size={24} color="#4267B2" />
           </TouchableOpacity>
         </View>
 
-        {/* Footer */}
         <View style={styles.rowContainer}>
           <Text style={styles.footerText}>Bạn chưa có tài khoản?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Register")}>
@@ -131,20 +126,12 @@ const styles = StyleSheet.create({
     padding: 25,
     alignItems: "center",
     elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
   },
   logo: {
     width: 120,
     height: 120,
     resizeMode: "contain",
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
   },
   title: {
     fontSize: 26,
@@ -165,10 +152,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     marginVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
   },
   inputIcon: {
     marginRight: 10,
